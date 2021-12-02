@@ -22,3 +22,7 @@ func (s *SimplePlugin) Run(sink plugindef.SignalConsumer) {
 	dp.SetIntVal(1)
 	sink.ConsumeMetrics(context.Background(), ms)
 }
+
+func (s *SimplePlugin) Start() {
+
+}

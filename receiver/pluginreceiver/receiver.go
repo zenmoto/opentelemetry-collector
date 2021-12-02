@@ -90,5 +90,5 @@ func (p *pluginReceiver) Shutdown(ctx context.Context) error {
 }
 
 var pluginMap = map[string]plugin.Plugin{
-	"receiver": &plugindef.ReceiverPlugin{},
+	"receiver": &plugindef.Receiver{},
 }
