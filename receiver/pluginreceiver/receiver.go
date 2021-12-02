@@ -44,9 +44,6 @@ type pluginReceiver struct {
 	config   *Config
 	settings component.ReceiverCreateSettings
 	consumer *receiverSignalConsumer
-	// logsConsumer    consumer.Logs
-	// tracesConsumer  consumer.Traces
-	// metricsConsumer consumer.Metrics
 }
 
 func (p *pluginReceiver) registerLogsConsumer(c consumer.Logs) error {
@@ -83,7 +80,7 @@ func (p *pluginReceiver) Start(ctx context.Context, host component.Host) error {
 	}
 
 	plugin := raw.(plugindef.Receiver)
-	plugin.Run(p.consumer)
+	plugin.Run(p.consumer, p.config.PluginConfig)
 	return nil
 }
 

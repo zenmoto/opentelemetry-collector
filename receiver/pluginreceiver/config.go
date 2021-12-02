@@ -24,7 +24,8 @@ import (
 type Config struct {
 	config.ReceiverSettings `mapstructure:",squash"` // squash ensures fields are correctly decoded in embedded struct
 	// Protocols is the configuration for the supported protocols, currently gRPC and HTTP (Proto and JSON).
-	Executable string `mapstructure:"executable"`
+	Executable   string            `mapstructure:"executable"`
+	PluginConfig map[string]string `mapstructure:"config"`
 }
 
 var _ config.Receiver = (*Config)(nil)
@@ -35,5 +36,6 @@ func (cfg *Config) Validate() error {
 		// TODO: Ensure plugin exists
 		return fmt.Errorf("executable not specified")
 	}
+	// TODO: This should launch the plugin and delegate validation of the child config
 	return nil
 }

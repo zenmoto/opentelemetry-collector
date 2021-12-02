@@ -10,5 +10,5 @@ type SignalConsumer interface {
 
 type Receiver interface {
 	// Start()
-	Run(sink SignalConsumer)
+	Run(sink SignalConsumer, config map[string]string)
 }

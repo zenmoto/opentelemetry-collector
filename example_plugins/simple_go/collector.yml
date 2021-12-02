@@ -1,6 +1,8 @@
 receivers:
   plugin:
     executable: ./bin/example_plugin
+    config:
+      metric_name: voonderbar
 
 exporters:
   logging:

@@ -21,8 +21,8 @@ type GRPCClient struct {
 	unmarshaller SignalUnmarshaller
 }
 
-func (c *GRPCClient) Run(sink SignalConsumer) {
-	runClient, _ := c.client.Run(context.Background(), &proto.PluginRequest{})
+func (c *GRPCClient) Run(sink SignalConsumer, config map[string]string) {
+	runClient, _ := c.client.Run(context.Background(), &proto.PluginRequest{Config: &proto.Config{Values: config}})
 	for {
 		msg, err := runClient.Recv()
 		if err == io.EOF {
@@ -35,6 +35,8 @@ func (c *GRPCClient) Run(sink SignalConsumer) {
 		switch msg.Type {
 		case proto.PluginResponse_METRIC:
 			m := c.unmarshaller.UnmarshalMetrics(msg.GetData())
+			// x := m.ResourceMetrics().At(0).InstrumentationLibraryMetrics().At(0).Metrics().At(0)
+			// fmt.Printf("%+v (%+v): %+v\n", x.Name(), x.DataType(), x.Sum().DataPoints().At(0).IntVal())
 			sink.ConsumeMetrics(ctx, m)
 		case proto.PluginResponse_LOG:
 			sink.ConsumeLogs(ctx, c.unmarshaller.UnmarshalLogs(msg.Data))
@@ -56,6 +58,6 @@ func (s *GRPCServer) Run(in *proto.PluginRequest, out proto.PluginService_RunSer
 		tracesMarshaller:  otlp.NewProtobufTracesMarshaler(),
 		metricsMarshaller: otlp.NewProtobufMetricsMarshaler(),
 	}
-	s.Impl.Run(consumer)
+	s.Impl.Run(consumer, in.Config.Values)
 	return nil
 }

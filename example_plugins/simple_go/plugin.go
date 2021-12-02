@@ -10,14 +10,19 @@ import (
 
 type SimplePlugin struct{}
 
-func (s *SimplePlugin) Run(sink plugindef.SignalConsumer) {
+func (s *SimplePlugin) Run(sink plugindef.SignalConsumer, config map[string]string) {
 	for i := 0; true; i++ {
 		ms := pdata.NewMetrics()
 		rm := ms.ResourceMetrics()
 		ilm := rm.AppendEmpty().InstrumentationLibraryMetrics()
 		m := ilm.AppendEmpty().Metrics().AppendEmpty()
 		m.SetDataType(pdata.MetricDataTypeSum)
-		m.SetName("a.metric.example")
+		metricName := "a.metric.example"
+		if config["metric_name"] != "" {
+			metricName = config["metric_name"]
+		}
+
+		m.SetName(metricName)
 		m.SetUnit("1")
 		sum := m.Sum()
 		sum.SetIsMonotonic(true)

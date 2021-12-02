@@ -33,6 +33,12 @@ message PluginResponse {
     bytes data = 2;
 }
 
-message PluginRequest {
 
+message Config {
+  // TODO: This should mirror the configuration format used elsewhere
+  map<string, string> values = 1;
+}
+
+message PluginRequest {
+  Config config = 1;
 }
