@@ -23,6 +23,7 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
+	"go.opentelemetry.io/collector/model/pdata"
 	"go.opentelemetry.io/collector/receiver/pluginreceiver/plugindef"
 )
 
@@ -71,10 +72,28 @@ func (p *pluginReceiver) Start(ctx context.Context, host component.Host) error {
 		panic(err)
 	}
 
-	plug := raw.(plugindef.Receiver)
-	fmt.Println("calling start")
-	plug.Start()
+	plugin := raw.(plugindef.Receiver)
+	plugin.Run(p)
+	// fmt.Println("calling start")
+	// plug.Start()
 	return nil
+}
+
+// FIXME: ugly, do better
+func (p *pluginReceiver) Capabilities() consumer.Capabilities {
+	return consumer.Capabilities{}
+}
+
+func (p *pluginReceiver) ConsumeLogs(ctx context.Context, logs pdata.Logs) error {
+	return p.logsConsumer.ConsumeLogs(ctx, logs)
+}
+
+func (p *pluginReceiver) ConsumeTraces(ctx context.Context, traces pdata.Traces) error {
+	return p.tracesConsumer.ConsumeTraces(ctx, traces)
+}
+
+func (p *pluginReceiver) ConsumeMetrics(ctx context.Context, metrics pdata.Metrics) error {
+	return p.metricsConsumer.ConsumeMetrics(ctx, metrics)
 }
 
 func (p *pluginReceiver) buildClientConfig() *plugin.ClientConfig {
@@ -82,6 +101,8 @@ func (p *pluginReceiver) buildClientConfig() *plugin.ClientConfig {
 		HandshakeConfig: plugindef.HandshakeConfig,
 		Plugins:         pluginMap,
 		Cmd:             exec.Command(p.config.Executable),
+		AllowedProtocols: []plugin.Protocol{
+			plugin.ProtocolGRPC},
 	}
 }
 
@@ -90,5 +111,5 @@ func (p *pluginReceiver) Shutdown(ctx context.Context) error {
 }
 
 var pluginMap = map[string]plugin.Plugin{
-	"receiver": &plugindef.Receiver{},
+	"receiver": &plugindef.ReceiverGRPCPlugin{},
 }

@@ -27,6 +27,7 @@ import (
 	"go.opentelemetry.io/collector/processor/batchprocessor"
 	"go.opentelemetry.io/collector/processor/memorylimiterprocessor"
 	"go.opentelemetry.io/collector/receiver/otlpreceiver"
+	"go.opentelemetry.io/collector/receiver/pluginreceiver"
 )
 
 // Components returns the default set of components used by the
@@ -45,6 +46,7 @@ func Components() (
 
 	receivers, err := component.MakeReceiverFactoryMap(
 		otlpreceiver.NewFactory(),
+		pluginreceiver.NewFactory(),
 	)
 	errs = multierr.Append(errs, err)
 

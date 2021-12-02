@@ -5,10 +5,10 @@ import "go.opentelemetry.io/collector/consumer"
 type SignalConsumer interface {
 	consumer.Logs
 	consumer.Metrics
-	consumer.Logs
+	consumer.Traces
 }
 
 type Receiver interface {
-	Start()
+	// Start()
 	Run(sink SignalConsumer)
 }

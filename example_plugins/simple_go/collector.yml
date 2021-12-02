@@ -1,0 +1,21 @@
+receivers:
+  plugin:
+    executable: ./bin/example_plugin
+
+exporters:
+  logging:
+
+service:
+  pipelines:
+    traces:
+      receivers: [plugin]
+      processors: []
+      exporters: [logging]
+    metrics:
+      receivers: [plugin]
+      processors: []
+      exporters: [logging]
+    logs:
+      receivers: [plugin]
+      processors: []
+      exporters: [logging]
