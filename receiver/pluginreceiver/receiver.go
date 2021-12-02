@@ -23,34 +23,44 @@ import (
 
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
-	"go.opentelemetry.io/collector/model/pdata"
 	"go.opentelemetry.io/collector/receiver/pluginreceiver/plugindef"
 )
 
+type receiverSignalConsumer struct {
+	consumer.Logs
+	consumer.Metrics
+	consumer.Traces
+}
+
+func (p *receiverSignalConsumer) Capabilities() consumer.Capabilities {
+	return consumer.Capabilities{}
+}
+
 func newPluginReceiver(cfg *Config, settings component.ReceiverCreateSettings) *pluginReceiver {
-	return &pluginReceiver{config: cfg, settings: settings}
+	return &pluginReceiver{config: cfg, settings: settings, consumer: &receiverSignalConsumer{}}
 }
 
 type pluginReceiver struct {
-	config          *Config
-	settings        component.ReceiverCreateSettings
-	logsConsumer    consumer.Logs
-	tracesConsumer  consumer.Traces
-	metricsConsumer consumer.Metrics
+	config   *Config
+	settings component.ReceiverCreateSettings
+	consumer *receiverSignalConsumer
+	// logsConsumer    consumer.Logs
+	// tracesConsumer  consumer.Traces
+	// metricsConsumer consumer.Metrics
 }
 
 func (p *pluginReceiver) registerLogsConsumer(c consumer.Logs) error {
-	p.logsConsumer = c
+	p.consumer.Logs = c
 	return nil
 }
 
 func (p *pluginReceiver) registerTraceConsumer(c consumer.Traces) error {
-	p.tracesConsumer = c
+	p.consumer.Traces = c
 	return nil
 }
 
 func (p *pluginReceiver) registerMetricsConsumer(c consumer.Metrics) error {
-	p.metricsConsumer = c
+	p.consumer.Metrics = c
 	return nil
 }
 
@@ -73,27 +83,8 @@ func (p *pluginReceiver) Start(ctx context.Context, host component.Host) error {
 	}
 
 	plugin := raw.(plugindef.Receiver)
-	plugin.Run(p)
-	// fmt.Println("calling start")
-	// plug.Start()
+	plugin.Run(p.consumer)
 	return nil
-}
-
-// FIXME: ugly, do better
-func (p *pluginReceiver) Capabilities() consumer.Capabilities {
-	return consumer.Capabilities{}
-}
-
-func (p *pluginReceiver) ConsumeLogs(ctx context.Context, logs pdata.Logs) error {
-	return p.logsConsumer.ConsumeLogs(ctx, logs)
-}
-
-func (p *pluginReceiver) ConsumeTraces(ctx context.Context, traces pdata.Traces) error {
-	return p.tracesConsumer.ConsumeTraces(ctx, traces)
-}
-
-func (p *pluginReceiver) ConsumeMetrics(ctx context.Context, metrics pdata.Metrics) error {
-	return p.metricsConsumer.ConsumeMetrics(ctx, metrics)
 }
 
 func (p *pluginReceiver) buildClientConfig() *plugin.ClientConfig {

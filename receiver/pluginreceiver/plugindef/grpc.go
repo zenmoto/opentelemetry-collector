@@ -2,7 +2,6 @@ package plugindef
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"go.opentelemetry.io/collector/model/otlp"
@@ -36,7 +35,6 @@ func (c *GRPCClient) Run(sink SignalConsumer) {
 		switch msg.Type {
 		case proto.PluginResponse_METRIC:
 			m := c.unmarshaller.UnmarshalMetrics(msg.GetData())
-			fmt.Printf("metric value: %+v\n", m.ResourceMetrics().At(0).InstrumentationLibraryMetrics().At(0).Metrics().At(0).Sum().DataPoints().At(0).IntVal())
 			sink.ConsumeMetrics(ctx, m)
 		case proto.PluginResponse_LOG:
 			sink.ConsumeLogs(ctx, c.unmarshaller.UnmarshalLogs(msg.Data))
