@@ -19,6 +19,7 @@ import (
 	"go.uber.org/multierr"
 
 	"go.opentelemetry.io/collector/component"
+	"go.opentelemetry.io/collector/example_plugins/simple_go"
 	"go.opentelemetry.io/collector/exporter/loggingexporter"
 	"go.opentelemetry.io/collector/exporter/otlpexporter"
 	"go.opentelemetry.io/collector/exporter/otlphttpexporter"
@@ -28,6 +29,7 @@ import (
 	"go.opentelemetry.io/collector/processor/memorylimiterprocessor"
 	"go.opentelemetry.io/collector/receiver/otlpreceiver"
 	"go.opentelemetry.io/collector/receiver/pluginreceiver"
+	"go.opentelemetry.io/collector/receiver/simplereceiverhelper"
 )
 
 // Components returns the default set of components used by the
@@ -47,6 +49,7 @@ func Components() (
 	receivers, err := component.MakeReceiverFactoryMap(
 		otlpreceiver.NewFactory(),
 		pluginreceiver.NewFactory(),
+		simplereceiverhelper.NewSimpleReceiverFactory("simple", &simple_go.SimplePlugin{}),
 	)
 	errs = multierr.Append(errs, err)
 

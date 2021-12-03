@@ -2,7 +2,10 @@ receivers:
   plugin:
     executable: ./bin/example_plugin
     config:
-      metric_name: voonderbar
+      metric_name: running_externally
+  simple:
+    config:
+      metric_name: compiled_in
 
 exporters:
   logging:
@@ -10,14 +13,14 @@ exporters:
 service:
   pipelines:
     traces:
-      receivers: [plugin]
+      receivers: [plugin, simple]
       processors: []
       exporters: [logging]
     metrics:
-      receivers: [plugin]
+      receivers: [plugin, simple]
       processors: []
       exporters: [logging]
     logs:
-      receivers: [plugin]
+      receivers: [plugin, simple]
       processors: []
       exporters: [logging]

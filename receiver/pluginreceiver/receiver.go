@@ -16,7 +16,6 @@ package pluginreceiver
 
 import (
 	"context"
-	"fmt"
 	"os/exec"
 
 	"github.com/hashicorp/go-plugin"
@@ -26,24 +25,25 @@ import (
 	"go.opentelemetry.io/collector/receiver/pluginreceiver/plugindef"
 )
 
-type receiverSignalConsumer struct {
+type ReceiverSignalConsumer struct {
+	// FIXME: needs protection from these being nil but the plugin still sending the signal
 	consumer.Logs
 	consumer.Metrics
 	consumer.Traces
 }
 
-func (p *receiverSignalConsumer) Capabilities() consumer.Capabilities {
+func (p *ReceiverSignalConsumer) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{}
 }
 
 func newPluginReceiver(cfg *Config, settings component.ReceiverCreateSettings) *pluginReceiver {
-	return &pluginReceiver{config: cfg, settings: settings, consumer: &receiverSignalConsumer{}}
+	return &pluginReceiver{config: cfg, settings: settings, consumer: &ReceiverSignalConsumer{}}
 }
 
 type pluginReceiver struct {
 	config   *Config
 	settings component.ReceiverCreateSettings
-	consumer *receiverSignalConsumer
+	consumer *ReceiverSignalConsumer
 }
 
 func (p *pluginReceiver) registerLogsConsumer(c consumer.Logs) error {
@@ -75,7 +75,6 @@ func (p *pluginReceiver) Start(ctx context.Context, host component.Host) error {
 	// Request the plugin
 	raw, err := rpcClient.Dispense("receiver")
 	if err != nil {
-		fmt.Println("Error in dispense")
 		panic(err)
 	}
 
